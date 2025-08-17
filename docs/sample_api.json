@@ -1,0 +1,37 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sample API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/login": {
+      "post": {
+        "summary": "User login endpoint",
+        "description": "Endpoint to log in users with username and password.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "username": "user1",
+                "password": "password123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful login",
+            "content": {
+              "application/json": {
+                "example": {
+                  "token": "jwt-token-string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

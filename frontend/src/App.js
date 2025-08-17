@@ -1,23 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.js
+import React from "react";
+import Upload from "./components/upload";
+import Summarize from "./components/summarize";
+import Search from "./components/search";
+import Examples from "./components/examples";
+import Chatbot from "./components/chatbot";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <h1>Smart API Documentation Assistant</h1>
+
+      <section style={{ marginBottom: "20px" }}>
+        <h2>1️⃣ Upload API Spec</h2>
+        <Upload />
+      </section>
+
+      <section style={{ marginBottom: "20px" }}>
+        <h2>2️⃣ Summarize API</h2>
+        <Summarize />
+      </section>
+
+      <section style={{ marginBottom: "20px" }}>
+        <h2>3️⃣ Search API</h2>
+        <Search />
+      </section>
+
+      <section style={{ marginBottom: "20px" }}>
+        <h2>4️⃣ API Examples</h2>
+        <Examples />
+      </section>
+
+      <section style={{ marginBottom: "20px" }}>
+        <h2>5️⃣ Chatbot</h2>
+        <Chatbot />
+      </section>
     </div>
   );
 }
