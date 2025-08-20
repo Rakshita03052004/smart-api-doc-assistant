@@ -3,7 +3,7 @@ import React from "react";
 import Upload from "./components/upload";
 import Summarize from "./components/summarize";
 import Search from "./components/search";
-import Examples from "./components/examples";
+
 import Chatbot from "./components/chatbot";
 
 function App() {
@@ -26,10 +26,7 @@ function App() {
         <Search />
       </section>
 
-      <section style={{ marginBottom: "20px" }}>
-        <h2>4️⃣ API Examples</h2>
-        <Examples />
-      </section>
+
 
       <section style={{ marginBottom: "20px" }}>
         <h2>5️⃣ Chatbot</h2>

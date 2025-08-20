@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@bytemd/plugin-mermaid": "^1.22.0",
+    "@bytemd/react": "^1.22.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7"
+  }
+}
