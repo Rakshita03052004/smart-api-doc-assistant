@@ -1,5 +1,3 @@
-// frontend/src/components/summarize.jsx
-
 import { useState, useEffect, useMemo, useRef } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
@@ -9,7 +7,7 @@ import mermaid from "mermaid";
 // ---- Simple Tabs ----
 function Tabs({ tabs, value, onChange }) {
   return (
-    <div className="w-full">
+    <div className="w-full mb-4">
       <div className="flex gap-2 flex-wrap">
         {tabs.map((t) => (
           <button
@@ -37,7 +35,6 @@ export default function Summarize() {
 
   const [file, setFile] = useState(null);
   const [uploadInfo, setUploadInfo] = useState("");
-
   const flowRef = useRef(null);
 
   // ---- Upload OpenAPI spec ----
@@ -45,7 +42,6 @@ export default function Summarize() {
     if (!file) return alert("Choose a JSON/YAML spec first.");
     const form = new FormData();
     form.append("file", file);
-
     try {
       setUploadInfo("⏳ Uploading...");
       const res = await fetch("http://127.0.0.1:8000/upload-spec", {
@@ -64,6 +60,7 @@ export default function Summarize() {
 
   // ---- Fetch summary ----
   const fetchSummary = async () => {
+    if (!file) return alert("Upload a spec first!");
     try {
       setLoading(true);
       const res = await axios.get("http://127.0.0.1:8000/api-summary", {
@@ -88,13 +85,9 @@ export default function Summarize() {
 
     let overview = s;
     const firstBreak = Math.min(
-      ...[endpointsMatch?.index, authMatch?.index].filter(
-        (x) => x !== undefined
-      )
+      ...[endpointsMatch?.index, authMatch?.index].filter((x) => x !== undefined)
     );
-    if (Number.isFinite(firstBreak)) {
-      overview = s.slice(0, firstBreak);
-    }
+    if (Number.isFinite(firstBreak)) overview = s.slice(0, firstBreak);
 
     const flowCode = flowMatch ? flowMatch[1].trim() : "";
 
@@ -112,7 +105,7 @@ export default function Summarize() {
     if (tab === "flow" && sections.flow && flowRef.current) {
       try {
         mermaid.initialize({ startOnLoad: false, securityLevel: "loose" });
-        flowRef.current.innerHTML = ""; // clear previous render
+        flowRef.current.innerHTML = "";
         mermaid.render("apiFlow", sections.flow, (svgCode) => {
           flowRef.current.innerHTML = svgCode;
         });
@@ -122,7 +115,6 @@ export default function Summarize() {
     }
   }, [tab, sections.flow]);
 
-  // ---- Tabs ----
   const tabs = [
     { value: "overview", label: "📄 Overview" },
     { value: "endpoints", label: "🔗 Endpoints" },
@@ -134,7 +126,6 @@ export default function Summarize() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-2xl font-bold">🧠 Summarize API</h1>
         <div className="flex gap-2 items-center">
           <input
             type="file"
@@ -148,17 +139,21 @@ export default function Summarize() {
           >
             Upload Spec
           </button>
-          <button
+
+        </div>
+      </div>
+      {uploadInfo && <p className="text-gray-600 mt-2">{uploadInfo}</p>}
+
+
+      <h1 className="text-2xl font-bold">🧠 Summarize API</h1>
+      <button
             onClick={fetchSummary}
             disabled={loading}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 disabled:opacity-50"
           >
             {loading ? "⏳ Working..." : "Summarize API"}
           </button>
-        </div>
-      </div>
 
-      {uploadInfo && <p className="text-gray-600 mt-2">{uploadInfo}</p>}
 
       {!summary && (
         <p className="text-gray-600 mt-4">
@@ -170,31 +165,12 @@ export default function Summarize() {
       {summary && (
         <div className="mt-6 p-6 rounded-xl shadow bg-white">
           <Tabs tabs={tabs} value={tab} onChange={setTab} />
-
           <div className="prose max-w-none mt-4">
-            {tab === "overview" && (
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {sections.overview}
-              </ReactMarkdown>
-            )}
-            {tab === "endpoints" && (
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {sections.endpoints}
-              </ReactMarkdown>
-            )}
-            {tab === "params" && (
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {sections.params}
-              </ReactMarkdown>
-            )}
-            {tab === "auth" && (
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {sections.auth}
-              </ReactMarkdown>
-            )}
-            {tab === "flow" && (
-              <div ref={flowRef} className="w-full overflow-x-auto" />
-            )}
+            {tab === "overview" && <ReactMarkdown remarkPlugins={[remarkGfm]}>{sections.overview}</ReactMarkdown>}
+            {tab === "endpoints" && <ReactMarkdown remarkPlugins={[remarkGfm]}>{sections.endpoints}</ReactMarkdown>}
+            {tab === "params" && <ReactMarkdown remarkPlugins={[remarkGfm]}>{sections.params}</ReactMarkdown>}
+            {tab === "auth" && <ReactMarkdown remarkPlugins={[remarkGfm]}>{sections.auth}</ReactMarkdown>}
+            {tab === "flow" && <div ref={flowRef} className="w-full overflow-x-auto" />}
           </div>
         </div>
       )}
