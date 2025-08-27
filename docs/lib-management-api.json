@@ -1,0 +1,275 @@
+{
+  "info": {
+    "name": "Library Management API",
+    "version": "1.0.0",
+    "description": "API for managing books, authors, genres, reviews, ratings, and search in a library system."
+  },
+  "baseUrl": "https://api.librarymanager.com/v1",
+  "endpoints": [
+    {
+      "name": "Get All Books",
+      "method": "GET",
+      "path": "/books",
+      "description": "Fetches a list of all books with optional filters.",
+      "queryParams": {
+        "author": "string",
+        "genre": "string",
+        "published": "int",
+        "limit": "int",
+        "page": "int"
+      },
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "id": "1",
+            "title": "The Great Gatsby",
+            "author": "F. Scott Fitzgerald",
+            "genre": "Classic",
+            "published_year": 1925,
+            "rating": 4.5
+          }
+        ]
+      }
+    },
+    {
+      "name": "Get Single Book",
+      "method": "GET",
+      "path": "/books/{id}",
+      "description": "Fetches details of a single book by ID.",
+      "pathParams": {
+        "id": "string"
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "id": "1",
+          "title": "The Great Gatsby",
+          "author": "F. Scott Fitzgerald",
+          "genre": "Classic",
+          "published_year": 1925,
+          "summary": "A story about the Jazz Age in the United States.",
+          "rating": 4.5,
+          "reviews": [
+            {
+              "user": "Alice",
+              "review": "Amazing classic!",
+              "rating": 5
+            },
+            {
+              "user": "Bob",
+              "review": "A timeless masterpiece.",
+              "rating": 4
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Add New Book",
+      "method": "POST",
+      "path": "/books",
+      "description": "Adds a new book to the library.",
+      "body": {
+        "title": "Brave New World",
+        "author": "Aldous Huxley",
+        "genre": "Dystopian",
+        "published_year": 1932,
+        "summary": "A futuristic society driven by technology and control."
+      },
+      "response": {
+        "success": true,
+        "message": "Book added successfully",
+        "data": {
+          "id": "3",
+          "title": "Brave New World",
+          "author": "Aldous Huxley"
+        }
+      }
+    },
+    {
+      "name": "Update Book",
+      "method": "PUT",
+      "path": "/books/{id}",
+      "description": "Updates details of a specific book by ID.",
+      "pathParams": {
+        "id": "string"
+      },
+      "body": {
+        "title": "Brave New World Revisited",
+        "summary": "Updated summary of the book."
+      },
+      "response": {
+        "success": true,
+        "message": "Book updated successfully",
+        "data": {
+          "id": "3",
+          "title": "Brave New World Revisited",
+          "author": "Aldous Huxley"
+        }
+      }
+    },
+    {
+      "name": "Delete Book",
+      "method": "DELETE",
+      "path": "/books/{id}",
+      "description": "Deletes a book from the library by ID.",
+      "pathParams": {
+        "id": "string"
+      },
+      "response": {
+        "success": true,
+        "message": "Book deleted successfully"
+      }
+    },
+    {
+      "name": "Get All Authors",
+      "method": "GET",
+      "path": "/authors",
+      "description": "Fetches a list of all authors.",
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "id": "1",
+            "name": "F. Scott Fitzgerald",
+            "books_count": 5
+          },
+          {
+            "id": "2",
+            "name": "George Orwell",
+            "books_count": 6
+          }
+        ]
+      }
+    },
+    {
+      "name": "Get Single Author",
+      "method": "GET",
+      "path": "/authors/{id}",
+      "description": "Fetches details of a single author by ID.",
+      "pathParams": {
+        "id": "string"
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "id": "1",
+          "name": "F. Scott Fitzgerald",
+          "bio": "American novelist and short story writer.",
+          "books": ["The Great Gatsby", "Tender Is the Night"]
+        }
+      }
+    },
+    {
+      "name": "Add New Author",
+      "method": "POST",
+      "path": "/authors",
+      "description": "Adds a new author.",
+      "body": {
+        "name": "George Orwell",
+        "bio": "English novelist, essayist, journalist."
+      },
+      "response": {
+        "success": true,
+        "message": "Author added successfully",
+        "data": {
+          "id": "2",
+          "name": "George Orwell"
+        }
+      }
+    },
+    {
+      "name": "Get All Genres",
+      "method": "GET",
+      "path": "/genres",
+      "description": "Fetches a list of all book genres.",
+      "response": {
+        "success": true,
+        "data": ["Classic", "Dystopian", "Fantasy", "Science Fiction", "Romance"]
+      }
+    },
+    {
+      "name": "Add New Genre",
+      "method": "POST",
+      "path": "/genres",
+      "description": "Adds a new genre to the library.",
+      "body": {
+        "name": "Historical Fiction"
+      },
+      "response": {
+        "success": true,
+        "message": "Genre added successfully",
+        "data": {
+          "id": "6",
+          "name": "Historical Fiction"
+        }
+      }
+    },
+    {
+      "name": "Get Reviews for a Book",
+      "method": "GET",
+      "path": "/books/{id}/reviews",
+      "description": "Fetches all reviews for a specific book.",
+      "pathParams": {
+        "id": "string"
+      },
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "user": "Alice",
+            "review": "Amazing classic!",
+            "rating": 5
+          },
+          {
+            "user": "Bob",
+            "review": "A timeless masterpiece.",
+            "rating": 4
+          }
+        ]
+      }
+    },
+    {
+      "name": "Add Review for a Book",
+      "method": "POST",
+      "path": "/books/{id}/reviews",
+      "description": "Adds a review for a specific book.",
+      "pathParams": {
+        "id": "string"
+      },
+      "body": {
+        "user": "Charlie",
+        "review": "Loved it!",
+        "rating": 5
+      },
+      "response": {
+        "success": true,
+        "message": "Review added successfully"
+      }
+    },
+    {
+      "name": "Search Books",
+      "method": "GET",
+      "path": "/search",
+      "description": "Search for books by title, author, or genre.",
+      "queryParams": {
+        "query": "string",
+        "limit": "int",
+        "page": "int"
+      },
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "id": "1",
+            "title": "The Great Gatsby",
+            "author": "F. Scott Fitzgerald",
+            "genre": "Classic",
+            "rating": 4.5
+          }
+        ]
+      }
+    }
+  ]
+}

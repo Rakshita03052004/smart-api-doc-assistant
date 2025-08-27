@@ -1,0 +1,206 @@
+{
+  "info": {
+    "name": "Movie Streaming API",
+    "version": "1.0.0",
+    "description": "API for managing movies, users, reviews, playlists, ratings, and search for a movie streaming platform."
+  },
+  "baseUrl": "https://api.moviestream.com/v1",
+  "endpoints": [
+    {
+      "name": "Get All Movies",
+      "method": "GET",
+      "path": "/movies",
+      "queryParams": {
+        "genre": "string",
+        "year": "int",
+        "director": "string",
+        "limit": "int",
+        "page": "int"
+      },
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "id": "1",
+            "title": "Inception",
+            "director": "Christopher Nolan",
+            "genre": "Sci-Fi",
+            "year": 2010,
+            "rating": 4.8
+          }
+        ]
+      }
+    },
+    {
+      "name": "Get Single Movie",
+      "method": "GET",
+      "path": "/movies/{id}",
+      "pathParams": {
+        "id": "string"
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "id": "1",
+          "title": "Inception",
+          "director": "Christopher Nolan",
+          "genre": "Sci-Fi",
+          "year": 2010,
+          "description": "A thief who steals corporate secrets through dream-sharing technology.",
+          "rating": 4.8,
+          "reviews": [
+            {
+              "user": "Alice",
+              "review": "Mind-blowing visuals and story!",
+              "rating": 5
+            },
+            {
+              "user": "Bob",
+              "review": "Excellent concept and execution.",
+              "rating": 4
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Add Movie",
+      "method": "POST",
+      "path": "/movies",
+      "body": {
+        "title": "Interstellar",
+        "director": "Christopher Nolan",
+        "genre": "Sci-Fi",
+        "year": 2014,
+        "description": "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival."
+      },
+      "response": {
+        "success": true,
+        "message": "Movie added successfully",
+        "data": {
+          "id": "2",
+          "title": "Interstellar"
+        }
+      }
+    },
+    {
+      "name": "Update Movie",
+      "method": "PUT",
+      "path": "/movies/{id}",
+      "pathParams": {
+        "id": "string"
+      },
+      "body": {
+        "rating": 4.9
+      },
+      "response": {
+        "success": true,
+        "message": "Movie updated successfully"
+      }
+    },
+    {
+      "name": "Delete Movie",
+      "method": "DELETE",
+      "path": "/movies/{id}",
+      "pathParams": {
+        "id": "string"
+      },
+      "response": {
+        "success": true,
+        "message": "Movie deleted successfully"
+      }
+    },
+    {
+      "name": "Get User Playlists",
+      "method": "GET",
+      "path": "/users/{id}/playlists",
+      "pathParams": {
+        "id": "string"
+      },
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "id": "1",
+            "name": "Sci-Fi Favorites",
+            "movies": ["Inception", "Interstellar"]
+          }
+        ]
+      }
+    },
+    {
+      "name": "Add Movie to Playlist",
+      "method": "POST",
+      "path": "/users/{user_id}/playlists/{playlist_id}/add",
+      "pathParams": {
+        "user_id": "string",
+        "playlist_id": "string"
+      },
+      "body": {
+        "movie_id": "2"
+      },
+      "response": {
+        "success": true,
+        "message": "Movie added to playlist successfully"
+      }
+    },
+    {
+      "name": "Get Movie Reviews",
+      "method": "GET",
+      "path": "/movies/{id}/reviews",
+      "pathParams": {
+        "id": "string"
+      },
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "user": "Alice",
+            "review": "Mind-blowing visuals!",
+            "rating": 5
+          }
+        ]
+      }
+    },
+    {
+      "name": "Add Movie Review",
+      "method": "POST",
+      "path": "/movies/{id}/reviews",
+      "pathParams": {
+        "id": "string"
+      },
+      "body": {
+        "user": "Charlie",
+        "review": "Amazing storyline and acting.",
+        "rating": 5
+      },
+      "response": {
+        "success": true,
+        "message": "Review added successfully"
+      }
+    },
+    {
+      "name": "Search Movies",
+      "method": "GET",
+      "path": "/search",
+      "queryParams": {
+        "query": "string",
+        "genre": "string",
+        "year": "int",
+        "limit": "int",
+        "page": "int"
+      },
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "id": "1",
+            "title": "Inception",
+            "genre": "Sci-Fi",
+            "rating": 4.8
+          }
+        ]
+      }
+    }
+  ]
+}

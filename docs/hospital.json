@@ -1,0 +1,321 @@
+{
+  "info": {
+    "name": "Hospital Management API",
+    "version": "1.0.0",
+    "description": "API for managing hospital patients, doctors, appointments, prescriptions, and departments."
+  },
+  "baseUrl": "https://api.hospitalmanager.com/v1",
+  "endpoints": [
+    {
+      "name": "Get All Patients",
+      "method": "GET",
+      "path": "/patients",
+      "description": "Fetch a list of all patients with optional filters.",
+      "queryParams": {
+        "name": "string",
+        "age": "int",
+        "gender": "string",
+        "limit": "int",
+        "page": "int"
+      },
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "id": "1",
+            "name": "John Doe",
+            "age": 35,
+            "gender": "Male",
+            "contact": "1234567890"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Get Single Patient",
+      "method": "GET",
+      "path": "/patients/{id}",
+      "pathParams": {
+        "id": "string"
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "id": "1",
+          "name": "John Doe",
+          "age": 35,
+          "gender": "Male",
+          "contact": "1234567890",
+          "medical_history": ["Diabetes", "Hypertension"]
+        }
+      }
+    },
+    {
+      "name": "Add New Patient",
+      "method": "POST",
+      "path": "/patients",
+      "body": {
+        "name": "Jane Smith",
+        "age": 28,
+        "gender": "Female",
+        "contact": "9876543210",
+        "medical_history": ["Asthma"]
+      },
+      "response": {
+        "success": true,
+        "message": "Patient added successfully",
+        "data": {
+          "id": "2",
+          "name": "Jane Smith"
+        }
+      }
+    },
+    {
+      "name": "Update Patient",
+      "method": "PUT",
+      "path": "/patients/{id}",
+      "pathParams": {
+        "id": "string"
+      },
+      "body": {
+        "contact": "1112223333"
+      },
+      "response": {
+        "success": true,
+        "message": "Patient updated successfully"
+      }
+    },
+    {
+      "name": "Delete Patient",
+      "method": "DELETE",
+      "path": "/patients/{id}",
+      "pathParams": {
+        "id": "string"
+      },
+      "response": {
+        "success": true,
+        "message": "Patient deleted successfully"
+      }
+    },
+    {
+      "name": "Get All Doctors",
+      "method": "GET",
+      "path": "/doctors",
+      "queryParams": {
+        "specialization": "string",
+        "limit": "int",
+        "page": "int"
+      },
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "id": "1",
+            "name": "Dr. Alice Brown",
+            "specialization": "Cardiology",
+            "contact": "1231231234"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Get Single Doctor",
+      "method": "GET",
+      "path": "/doctors/{id}",
+      "pathParams": {
+        "id": "string"
+      },
+      "response": {
+        "success": true,
+        "data": {
+          "id": "1",
+          "name": "Dr. Alice Brown",
+          "specialization": "Cardiology",
+          "contact": "1231231234",
+          "experience_years": 10
+        }
+      }
+    },
+    {
+      "name": "Add New Doctor",
+      "method": "POST",
+      "path": "/doctors",
+      "body": {
+        "name": "Dr. Bob Smith",
+        "specialization": "Neurology",
+        "contact": "4564564567",
+        "experience_years": 8
+      },
+      "response": {
+        "success": true,
+        "message": "Doctor added successfully",
+        "data": {
+          "id": "2",
+          "name": "Dr. Bob Smith"
+        }
+      }
+    },
+    {
+      "name": "Update Doctor",
+      "method": "PUT",
+      "path": "/doctors/{id}",
+      "pathParams": {
+        "id": "string"
+      },
+      "body": {
+        "experience_years": 9
+      },
+      "response": {
+        "success": true,
+        "message": "Doctor updated successfully"
+      }
+    },
+    {
+      "name": "Delete Doctor",
+      "method": "DELETE",
+      "path": "/doctors/{id}",
+      "pathParams": {
+        "id": "string"
+      },
+      "response": {
+        "success": true,
+        "message": "Doctor deleted successfully"
+      }
+    },
+    {
+      "name": "Get All Appointments",
+      "method": "GET",
+      "path": "/appointments",
+      "queryParams": {
+        "patient_id": "string",
+        "doctor_id": "string",
+        "date": "string",
+        "limit": "int",
+        "page": "int"
+      },
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "id": "1",
+            "patient_id": "1",
+            "doctor_id": "1",
+            "date": "2025-08-23",
+            "time": "10:00",
+            "status": "Scheduled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Add Appointment",
+      "method": "POST",
+      "path": "/appointments",
+      "body": {
+        "patient_id": "2",
+        "doctor_id": "1",
+        "date": "2025-08-25",
+        "time": "14:00",
+        "reason": "Routine checkup"
+      },
+      "response": {
+        "success": true,
+        "message": "Appointment created successfully",
+        "data": {
+          "id": "2",
+          "patient_id": "2",
+          "doctor_id": "1"
+        }
+      }
+    },
+    {
+      "name": "Update Appointment",
+      "method": "PUT",
+      "path": "/appointments/{id}",
+      "pathParams": {
+        "id": "string"
+      },
+      "body": {
+        "status": "Completed"
+      },
+      "response": {
+        "success": true,
+        "message": "Appointment updated successfully"
+      }
+    },
+    {
+      "name": "Delete Appointment",
+      "method": "DELETE",
+      "path": "/appointments/{id}",
+      "pathParams": {
+        "id": "string"
+      },
+      "response": {
+        "success": true,
+        "message": "Appointment deleted successfully"
+      }
+    },
+    {
+      "name": "Get Prescriptions for Patient",
+      "method": "GET",
+      "path": "/patients/{id}/prescriptions",
+      "pathParams": {
+        "id": "string"
+      },
+      "response": {
+        "success": true,
+        "data": [
+          {
+            "id": "1",
+            "doctor": "Dr. Alice Brown",
+            "date": "2025-08-20",
+            "medications": [
+              {
+                "name": "Paracetamol",
+                "dosage": "500mg",
+                "frequency": "3 times a day"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "Add Prescription",
+      "method": "POST",
+      "path": "/patients/{id}/prescriptions",
+      "pathParams": {
+        "id": "string"
+      },
+      "body": {
+        "doctor_id": "1",
+        "medications": [
+          {
+            "name": "Ibuprofen",
+            "dosage": "200mg",
+            "frequency": "2 times a day"
+          }
+        ]
+      },
+      "response": {
+        "success": true,
+        "message": "Prescription added successfully"
+      }
+    },
+    {
+      "name": "Get All Departments",
+      "method": "GET",
+      "path": "/departments",
+      "response": {
+        "success": true,
+        "data": [
+          "Cardiology",
+          "Neurology",
+          "Orthopedics",
+          "Pediatrics",
+          "General Surgery"
+        ]
+      }
+    }
+  ]
+}
