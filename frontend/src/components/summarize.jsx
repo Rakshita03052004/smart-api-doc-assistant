@@ -126,6 +126,7 @@ export default function Summarize() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-2xl font-bold">🧠 Summarize API</h1>
         <div className="flex gap-2 items-center">
           <input
             type="file"
@@ -139,21 +140,17 @@ export default function Summarize() {
           >
             Upload Spec
           </button>
-
-        </div>
-      </div>
-      {uploadInfo && <p className="text-gray-600 mt-2">{uploadInfo}</p>}
-
-
-      <h1 className="text-2xl font-bold">🧠 Summarize API</h1>
-      <button
+          <button
             onClick={fetchSummary}
             disabled={loading}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 disabled:opacity-50"
           >
             {loading ? "⏳ Working..." : "Summarize API"}
           </button>
+        </div>
+      </div>
 
+      {uploadInfo && <p className="text-gray-600 mt-2">{uploadInfo}</p>}
 
       {!summary && (
         <p className="text-gray-600 mt-4">
@@ -167,13 +164,112 @@ export default function Summarize() {
           <Tabs tabs={tabs} value={tab} onChange={setTab} />
           <div className="prose max-w-none mt-4">
             {tab === "overview" && <ReactMarkdown remarkPlugins={[remarkGfm]}>{sections.overview}</ReactMarkdown>}
-            {tab === "endpoints" && <ReactMarkdown remarkPlugins={[remarkGfm]}>{sections.endpoints}</ReactMarkdown>}
-            {tab === "params" && <ReactMarkdown remarkPlugins={[remarkGfm]}>{sections.params}</ReactMarkdown>}
+            {tab === "endpoints" && <EndpointsTable markdown={sections.endpoints} />}
+
+            {tab === "params" && <ParametersTable markdown={sections.params} />}
+
             {tab === "auth" && <ReactMarkdown remarkPlugins={[remarkGfm]}>{sections.auth}</ReactMarkdown>}
             {tab === "flow" && <div ref={flowRef} className="w-full overflow-x-auto" />}
           </div>
         </div>
       )}
+    </div>
+  );
+}
+function EndpointsTable({ markdown }) {
+  const rows = markdown
+    .split("\n")
+    .filter((line) => line.startsWith("|"))
+    .map((line) =>
+      line
+        .split("|")
+        .map((c) => c.trim())
+        .filter((c) => c)
+    );
+
+  if (rows.length < 2) return <p>No endpoints found.</p>;
+
+  const headers = rows[0];
+  const data = rows.slice(1);
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="table-auto w-full border border-gray-300 rounded-lg shadow-sm">
+        <thead className="bg-green-400 text-black">
+          <tr>
+            {headers.map((h, i) => (
+              <th key={i} className="px-3 py-2 text-left text-sm font-bold border">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((cols, rowIdx) => (
+            <tr key={rowIdx} className="odd:bg-white even:bg-gray-50">
+              {cols.map((col, colIdx) => (
+                <td key={colIdx} className="px-3 py-2 text-sm border text-gray-800">
+                  {col}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ParametersTable({ markdown }) {
+  // Extract rows from markdown (| col | col | col | style tables)
+  const rows = markdown
+    .split("\n")
+    .filter((line) => line.startsWith("|"))
+    .map((line) =>
+      line
+        .split("|")
+        .map((c) => c.trim())
+        .filter((c) => c)
+    );
+
+  if (rows.length < 2) return <p>No parameters found.</p>;
+
+  const headers = rows[0];
+  const data = rows.slice(1);
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="table-auto w-full border border-gray-300 rounded-lg shadow-sm">
+        <thead className="bg-yellow-400 text-black">
+          <tr>
+            {headers.map((h, i) => (
+              <th key={i} className="px-3 py-2 text-left text-sm font-bold border">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((cols, rowIdx) => (
+            <tr key={rowIdx} className="odd:bg-white even:bg-gray-50">
+              {cols.map((col, colIdx) => (
+                <td
+                  key={colIdx}
+                  className="px-3 py-2 text-sm border text-gray-800"
+                >
+                  {col === "❌" ? (
+                    <span className="text-red-500 font-bold">✘</span>
+                  ) : col === "✅" ? (
+                    <span className="text-green-600 font-bold">✔</span>
+                  ) : (
+                    col
+                  )}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

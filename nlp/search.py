@@ -1,192 +1,92 @@
-# search.py
-from fastapi import APIRouter, Query, HTTPException
-from typing import Optional
-import json
+"""
+search.py
 
-router = APIRouter()
-
-# This should be imported from your main module or loaded here
-# For now, I'll create a placeholder that you can replace
-API_SPEC = {}
-
-def load_api_spec():
-    """Load the API spec from wherever it's stored"""
-    global API_SPEC
-    try:
-        # Replace this with your actual API spec loading logic
-        # For example, if you're loading from a file:
-        # with open('hospital.json', 'r') as f:
-        #     API_SPEC = json.load(f)
-        
-        # Or if it's stored in memory from your main module:
-        from main import get_api_spec  # Adjust import as needed
-        API_SPEC = get_api_spec()
-    except Exception as e:
-        print(f"Error loading API spec: {e}")
-        API_SPEC = {}
-
-def generate_code_snippets(path: str, method: str, base_url: str = "http://localhost:8000") -> dict:
-    """
-    Generate Python, JavaScript, and cURL code snippets for the given endpoint.
-    """
-    url = f"{base_url}{path}"
-    
-    # Handle path parameters in examples
-    example_path = path
-    if "{id}" in path:
-        example_path = path.replace("{id}", "123")
-    example_url = f"{base_url}{example_path}"
-
-    python_code = f"""import requests
-
-url = "{example_url}"
+Module to implement search logic on the API specification data.
 """
 
-    js_code = f"""fetch("{example_url}", {{
-  method: "{method.upper()}",
-  headers: {{
-    "Content-Type": "application/json"
-  }}
-"""
+from typing import List, Dict
 
-    curl_code = f"""curl -X {method.upper()} "{example_url}" \\
-  -H "Content-Type: application/json\""""
+def search_api_spec(api_spec: Dict, query: str) -> List[Dict]:
+    """
+    Search API specification for endpoints matching the query.
 
-    # Add payload for POST/PUT requests
-    if method.upper() in ["POST", "PUT", "PATCH"]:
-        python_code += """payload = {}
-headers = {
-    "Content-Type": "application/json"
-}
+    Args:
+        api_spec (Dict): Loaded API specification dictionary.
+        query (str): Search query string.
 
-response = requests.""" + method.lower() + """(url, json=payload, headers=headers)
-print(response.json())"""
+    Returns:
+        List[Dict]: List of matching endpoints with basic details.
+    """
+    if not query:
+        return []
 
-        js_code += """,
-  body: JSON.stringify({})
-})
-  .then(res => res.json())
-  .then(console.log)
-  .catch(console.error);"""
-
-        curl_code += """ \\
-  -d '{}'"""
-
-    else:  # GET, DELETE
-        python_code += """headers = {}
-
-response = requests.""" + method.lower() + """(url, headers=headers)
-print(response.json())"""
-
-        js_code += """})
-  .then(res => res.json())
-  .then(console.log)
-  .catch(console.error);"""
-
-    return {
-        "python": python_code,
-        "javascript": js_code,
-        "curl": curl_code
-    }
-
-
-@router.get("/search")
-async def search_endpoint(keyword: Optional[str] = Query(None, description="Keyword to search in API spec")):
-    """Search for endpoints matching the keyword"""
-    
-    if not keyword:
-        raise HTTPException(status_code=400, detail="Keyword parameter is required")
-    
-    # Load API spec if not already loaded
-    if not API_SPEC:
-        load_api_spec()
-    
-    if not API_SPEC:
-        raise HTTPException(status_code=500, detail="No API spec available")
-
+    query_lower = query.lower()
     results = []
-    keyword_lower = keyword.lower()
 
-    # Search inside "paths"
-    paths = API_SPEC.get("paths", {})
-    
+    # Assuming api_spec["paths"] contains the paths dictionary
+    paths = api_spec.get("paths", {})
+
     for path, methods in paths.items():
         for method, details in methods.items():
-            summary = details.get("summary", "")
-            description = details.get("description", "")
-            operation_id = details.get("operationId", "")
-            
-            # Check if keyword matches any of these fields
-            if any(keyword_lower in field.lower() for field in [path, method, summary, description, operation_id]):
-                result_item = {
-                    "endpoint": path,
-                    "method": method.upper(),
-                    "summary": summary,
-                    "description": description,
-                    "operationId": operation_id,
-                    "code_snippets": generate_code_snippets(path, method)
-                }
-                results.append(result_item)
+            summary = details.get("summary", "").lower()
+            description = details.get("description", "").lower()
+            tags = [tag.lower() for tag in details.get("tags", [])]
 
-    # Search inside "components" (schemas, etc.)
-    components_results = []
-    if "components" in API_SPEC:
-        for comp_type, comp_dict in API_SPEC["components"].items():
-            if isinstance(comp_dict, dict):
-                for comp_name, comp_details in comp_dict.items():
-                    if keyword_lower in comp_name.lower():
-                        components_results.append({
-                            "type": comp_type,
-                            "name": comp_name,
-                            "details": comp_details
-                        })
+            if (
+                query_lower in path.lower()
+                or query_lower in summary
+                or query_lower in description
+                or any(query_lower in tag for tag in tags)
+            ):
+                results.append(
+                    {
+                        "endpoint": path,
+                        "method": method.upper(),
+                        "summary": details.get("summary", ""),
+                        "description": details.get("description", ""),
+                    }
+                )
 
-    response_data = {
-        "keyword": keyword,
-        "endpoints_found": len(results),
-        "components_found": len(components_results),
-        "endpoints": results
-    }
-    
-    if components_results:
-        response_data["components"] = components_results
+    return results
+def build_smart_description(path: str, method: str, details: dict) -> str:
+    # 1. If description exists, use it
+    if details.get("description"):
+        return details["description"]
 
-    if not results and not components_results:
-        return {
-            "keyword": keyword,
-            "message": f"No matches found for '{keyword}'",
-            "endpoints_found": 0,
-            "components_found": 0,
-            "endpoints": [],
-            "suggestion": "Try searching for terms like 'patient', 'doctor', 'appointment', etc."
-        }
+    # 2. If summary exists, use it
+    if details.get("summary"):
+        return details["summary"]
 
-    return response_data
+    # 3. Try to build from schema
+    desc_parts = []
 
+    # Parameters
+    params = details.get("parameters", [])
+    if params:
+        param_names = [p.get("name", "") for p in params]
+        desc_parts.append(f"parameters: {', '.join(param_names)}")
 
-@router.get("/endpoints")
-async def list_all_endpoints():
-    """List all available endpoints"""
-    
-    if not API_SPEC:
-        load_api_spec()
-    
-    if not API_SPEC:
-        raise HTTPException(status_code=500, detail="No API spec available")
+    # Request body
+    if "requestBody" in details:
+        content = details["requestBody"].get("content", {})
+        if "application/json" in content:
+            schema = content["application/json"].get("schema", {})
+            if "properties" in schema:
+                fields = list(schema["properties"].keys())
+                desc_parts.append(f"request fields: {', '.join(fields)}")
 
-    endpoints = []
-    paths = API_SPEC.get("paths", {})
-    
-    for path, methods in paths.items():
-        for method, details in methods.items():
-            endpoints.append({
-                "endpoint": path,
-                "method": method.upper(),
-                "summary": details.get("summary", ""),
-                "description": details.get("description", "")
-            })
-    
-    return {
-        "total_endpoints": len(endpoints),
-        "endpoints": endpoints
-    }
+    # Responses
+    responses = details.get("responses", {})
+    if "200" in responses:
+        resp_content = responses["200"].get("content", {})
+        if "application/json" in resp_content:
+            schema = resp_content["application/json"].get("schema", {})
+            if "properties" in schema:
+                fields = list(schema["properties"].keys())
+                desc_parts.append(f"returns: {', '.join(fields)}")
+
+    # 4. Final fallback
+    if desc_parts:
+        return f"{method.upper()} {path} → " + "; ".join(desc_parts)
+
+    return f"{method.upper()} {path} → No description available"

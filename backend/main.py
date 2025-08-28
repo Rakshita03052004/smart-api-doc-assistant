@@ -129,6 +129,7 @@ def normalize_spec(raw_spec: dict) -> dict:
         return _normalize_openapi(raw_spec)
     return _normalize_minimal(raw_spec)
 
+
 # ---------------- Text Helpers ----------------
 STOPWORDS = set("a an and are as at be by for from has have how i if in into is it its of on or that the their them they this to was were what when where which who will with you your".split())
 
@@ -311,23 +312,89 @@ def summarize_json():
             desc = details.get("description") or details.get("summary") or ""
             result[path][method.upper()] = {"summary": summarize_text(desc), "keywords": extract_keywords(desc)}
     return JSONResponse(result)
+# ---------------- Search Helpers ----------------
+def build_smart_description(path: str, method: str, details: Dict) -> str:
+    """Generate fallback description if missing in spec"""
+    parts = []
+    if details.get("summary"):
+        parts.append(details["summary"])
+    if details.get("operationId"):
+        parts.append(f"Operation ID: {details['operationId']}")
+    if details.get("tags"):
+        parts.append(f"Tags: {', '.join(details['tags'])}")
+    if not parts:
+        return f"→ {method.upper()} {path} (no description in spec)"
+    return " | ".join(parts)
 
+
+# ---------------- Routes ----------------
 @app.get("/search")
 def search(keyword: str):
     if not API_SPEC:
         return JSONResponse({"error": "No API spec uploaded yet"}, status_code=400)
+
     kw = (keyword or "").lower().strip()
     if not kw:
         return JSONResponse({"error": "Empty keyword"}, status_code=400)
-    results = {}
+
+    results = []
     for path, methods in (API_SPEC.get("paths") or {}).items():
         for method, details in (methods or {}).items():
             blob = json.dumps(details, ensure_ascii=False).lower()
             if kw in path.lower() or kw in method.lower() or kw in blob:
-                results.setdefault(path, {})[method] = details
+                results.append({
+                    "endpoint": path,
+                    "method": method.upper(),
+                    "summary": details.get("summary", ""),
+                    "description": details.get("description") or build_smart_description(path, method, details)
+                })
+
     if not results:
         return JSONResponse({"message": f"No matches for '{keyword}'"})
-    return JSONResponse(results)
+
+    return JSONResponse({"results": results})
+
+# @app.get("/search")
+# def build_smart_description(path: str, method: str, details: Dict) -> str:
+#     """Generate fallback description if missing in spec"""
+#     parts = []
+#     if details.get("summary"):
+#         parts.append(details["summary"])
+#     if details.get("operationId"):
+#         parts.append(f"Operation ID: {details['operationId']}")
+#     if details.get("tags"):
+#         parts.append(f"Tags: {', '.join(details['tags'])}")
+#     if not parts:
+#         return f"→ {method.upper()} {path} (no description in spec)"
+#     return " | ".join(parts)
+
+# def search(keyword: str):
+#     if not API_SPEC:
+#         return JSONResponse({"error": "No API spec uploaded yet"}, status_code=400)
+
+#     kw = (keyword or "").lower().strip()
+#     if not kw:
+#         return JSONResponse({"error": "Empty keyword"}, status_code=400)
+
+#     results = []
+#     for path, methods in (API_SPEC.get("paths") or {}).items():
+#         for method, details in (methods or {}).items():
+#             blob = json.dumps(details, ensure_ascii=False).lower()
+#             if kw in path.lower() or kw in method.lower() or kw in blob:
+#                 results.append({
+#     "endpoint": path,
+#     "method": method.upper(),
+#     "summary": details.get("summary", ""),
+#     "description": details.get("description") or build_smart_description(path, method, details)
+# })
+
+
+
+#     if not results:
+#         return JSONResponse({"message": f"No matches for '{keyword}'"})
+
+#     return JSONResponse({"results": results})
+
 
 # ---------------- Serve Frontend ----------------
 build_path = os.path.join(os.path.dirname(__file__), "../frontend/build")
